@@ -29,19 +29,22 @@ public class jwtController : Controller
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: new SigningCredentials(jwtModel.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
         var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-        
-        Response.Cookies.Append("token", encodedJwt, new CookieOptions
-        {
-            HttpOnly = true
-        });
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(new ClaimsIdentity()));
 
-        
-        var response = new
-        {
-            access_token = encodedJwt,
-        };
- 
-        return Json(response);
+        var claims = new List<Claim>();
+        claims.Add(new Claim("type", "value"));
+        ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity/* здесь claims**/));
+        //Response.Cookies.Append("token", encodedJwt, new CookieOptions
+        //{
+        //    HttpOnly = true
+        //});
+
+
+        //var response = new
+        //{
+        //    access_token = encodedJwt,
+        //};
+
+        return Json("OK");
     }
 }

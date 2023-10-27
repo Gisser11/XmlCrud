@@ -1,8 +1,9 @@
-﻿using System.Reflection;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using WebApplication2.Models;
 using WebApplication2.Models.Constants;
@@ -10,7 +11,7 @@ using Formatting = Newtonsoft.Json.Formatting;
 
 namespace WebApplication2.Controllers;
 
-[Authorize]
+
 [ApiController]
 [Route("xml")]
 public class XmlController : Controller
@@ -27,22 +28,42 @@ public class XmlController : Controller
     
     public string getXML()
     {
-        string xmlFilePath = this.Environment.ContentRootPath + Constants.PATH + Constants.XML;
+        string xmlFilePath = Environment.ContentRootPath + Constants.PATH + Constants.XML;
         string xmlData = System.IO.File.ReadAllText(xmlFilePath);
         return xmlData;
+    }
+    public string GetToken()
+    {
+        var jwt = new JwtSecurityToken(
+            issuer: jwtModel.ISSUER,
+            audience: jwtModel.AUDIENCE,
+            expires: DateTime.Today.AddDays(1),
+            signingCredentials: new SigningCredentials(jwtModel.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+        var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+        return encodedJwt;
     }
     
     [HttpGet("api/Reports")]
     public IActionResult Reports()
     {
-        XmlSerializer serializer = new XmlSerializer(typeof(Reports));
+        string myCookie = Request.Cookies["token"];
+        string ServerSideToken = GetToken();
+        var check = jwtModel.GetSymmetricSecurityKey();
+        if (myCookie != null && myCookie == ServerSideToken)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(Reports));
         
-        using (StringReader reader = new StringReader(Document))
-        {   
-            Reports reports = (Reports)serializer.Deserialize(reader);
-            string jsonData = JsonConvert.SerializeObject(reports, Formatting.Indented);
-            return Ok(jsonData);
+        
+            using (StringReader reader = new StringReader(Document))
+            {   
+                Reports reports = (Reports)serializer.Deserialize(reader);
+                string jsonData = JsonConvert.SerializeObject(reports, Formatting.Indented);
+                return Ok(jsonData);
+            }
         }
+
+        return BadRequest();
+
     }
 
 

@@ -2,11 +2,60 @@
     ViewData["Title"] = "Home Page";
 }
 
+<style>
+    .green-row .x-grid-cell {
+      background-color: green ;
+      color: whitesmoke;
+    }
+</style>
 <div class="text-center">
     <script>
         Ext.application({
             name: 'MyApp',
-            launch: function () {  
+            launch: function () {
+                Ext.create('Ext.Button', {
+                    text: 'Завершить работу (удалить куки)',
+                    renderTo: Ext.getBody(),
+                    margin: 40,        
+                    handler: function() {
+                        Ext.Ajax.request({
+                           url: 'https://localhost:7004/token/delete',
+                           method: 'POST', 
+                       }).then(()=>{
+                        window.location.reload();   });
+                    }
+                });
+
+                var token = Ext.util.Cookies.get('token'); 
+                    if (!token) {
+                        var passwordWindow = Ext.create('Ext.window.Window', {
+                            title: 'Введите пароль',
+                            items: [{
+                                xtype: 'textfield',
+                                fieldLabel: 'Пароль',
+                                id: 'passwordField'
+                            }],
+                            padding: 50,
+                            buttons: [{
+                                text: 'OK',
+                                handler: function () {
+                                    let password = {
+                                        jwtKey: Ext.getCmp('passwordField').getValue()
+                                    }
+                                    var json = JSON.stringify(password)
+                          
+                                    Ext.Ajax.request({
+                                       url: 'https://localhost:7004/token',
+                                       method: 'POST', 
+                                       jsonData: json
+                                   }).then(()=>{
+                                    window.location.reload();
+                                    passwordWindow.close();});
+                                }
+                            }]
+                        });
+                        passwordWindow.show();
+                    }
                 Ext.define('Report', {
                     extend: 'Ext.data.Model',
                     fields: [
@@ -18,6 +67,9 @@
                 });
     
                 var store = Ext.create('Ext.data.Store', {
+                    sorters: [{
+                        property: 'ReportId'
+                    }],
                     model: 'Report',
                     proxy: {
                         type: 'rest',
@@ -35,12 +87,8 @@
         
                 
                 var grid = Ext.create('Ext.grid.Panel', {
-                    
-                    
                     title: 'Reports',
                     store: store,
-                    
-
                     columns: [
                         { text: 'ReportId', dataIndex: 'ReportId', editor: 'textfield', flex: 1},
                         { text: 'Server', dataIndex: 'Server', editor: 'textfield', flex: 1 },
@@ -83,6 +131,17 @@
                             }]
                         }
                     ],
+                    viewConfig: {
+                        getRowClass: function(rec) {
+                            var id = rec.get('ReportId');
+                            if (id === 0) {
+                                return 'green-row';
+                            }
+                            else {
+                                return 'white-row';
+                            }
+                        }
+                    },
                    selType: 'rowmodel',
                    plugins: [
                        Ext.create('Ext.grid.plugin.RowEditing', {
@@ -102,23 +161,11 @@
                                            changes[key] = replaceEmptyWithNull(changes[key]);
                                        }
                                    }
-                                   console.log(changes)
                                    
                                    Ext.Ajax.request({
                                        url: 'https://localhost:7004/xml/api/EditNode',
                                        method: 'PUT', 
-                                       jsonData: changes,
-                                       /*success: function (response, opts) {
-                                           var responseData = Ext.decode(response.responseText);
-                                           if (responseData.success) {
-                                               Ext.Msg.alert('Успех', 'Изменения успешно сохранены');
-                                           } else {
-                                               Ext.Msg.alert('Ошибка', 'Произошла ошибка при сохранении изменений');
-                                           }
-                                       },
-                                       failure: function (response, opts) {
-                                           Ext.Msg.alert('Ошибка', 'Произошла ошибка при отправке данных на сервер');
-                                       }*/
+                                       jsonData: changes
                                    });
                                    
                                }
@@ -139,7 +186,6 @@
         
     </script>
     <script>
-    var reportId = 555
-    console.log('https://localhost:7004/xml/EditNode/' + reportId.toString())
+        
     </script>
 </div>

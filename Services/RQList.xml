@@ -47,9 +47,8 @@
     <Server>ksdb3\dwh_de</Server>
     <DataBase>dwh2_test_marina_19</DataBase>
     <UserName>fest</UserName>
-    <UserPassword>
-    </UserPassword>
-    <DataSourceType>5</DataSourceType>
+    <UserPassword>zxcasd123</UserPassword>
+    <DataSourceType>10</DataSourceType>
     <DefaultComplex>64</DefaultComplex>
   </Data>
   <Data>

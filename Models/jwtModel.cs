@@ -5,10 +5,10 @@ namespace WebApplication2.Models;
 
 public class jwtModel
 {
-    public const string ISSUER = "MyAuthServer"; // издатель токена
-    public const string AUDIENCE = "MyAuthClient"; // потребитель токена
-    const string KEY = "mysupersecret_secretkey!123";   // ключ для шифрации
-    public const int LIFETIME = 1; // время жизни токена - 1 минута
+    public const string ISSUER = "MyAuthServer"; 
+    public const string AUDIENCE = "MyAuthClient"; 
+    public const string KEY = "mysupersecret_secretkey!1234";  // Можно ли брать для сравнения ключ отсюда? Или это максимально не безопасно? 
+    public const int LIFETIME = 1; 
     public static SymmetricSecurityKey GetSymmetricSecurityKey()
     {
         return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(KEY));

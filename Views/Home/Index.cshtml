@@ -9,6 +9,7 @@
     }
 </style>
 <div class="text-center">
+mysupersecret_secretkey!1234
     <script>
         Ext.application({
             name: 'MyApp',
@@ -33,26 +34,27 @@
                             items: [{
                                 xtype: 'textfield',
                                 fieldLabel: 'Пароль',
-                                id: 'passwordField'
-                            }],
-                            padding: 50,
-                            buttons: [{
-                                text: 'OK',
+                                id: 'passwordField',
+                            }, {
+                                xtype: 'button',
+                                text: 'OK', 
                                 handler: function () {
                                     let password = {
                                         jwtKey: Ext.getCmp('passwordField').getValue()
-                                    }
-                                    var json = JSON.stringify(password)
-                          
+                                    };
+                                    var json = JSON.stringify(password);
+                        
                                     Ext.Ajax.request({
-                                       url: 'https://localhost:7004/token',
-                                       method: 'POST', 
-                                       jsonData: json
-                                   }).then(()=>{
-                                    window.location.reload();
-                                    passwordWindow.close();});
+                                        url: 'https://localhost:7004/token',
+                                        method: 'POST',
+                                        jsonData: json
+                                    }).then(() => {
+                                        window.location.reload();
+                                        passwordWindow.close();
+                                    });
                                 }
-                            }]
+                            }],
+                            padding: 20
                         });
                         passwordWindow.show();
                     }
@@ -108,7 +110,6 @@
                         {
                             xtype: 'actioncolumn',
                             text: 'Удаление', 
-                            padding: 40, 
                             items: [{
                                 iconCls: 'x-fa fa-trash-o', 
                                 tooltip: 'Методы',
@@ -146,6 +147,8 @@
                    plugins: [
                        Ext.create('Ext.grid.plugin.RowEditing', {
                            clicksToEdit: 2,
+                           saveBtnText: 'Сохранить',
+                           cancelBtnText: 'Отменить',
                            listeners: {
                                edit: function (edit, context) {
                                    var record = context.record;

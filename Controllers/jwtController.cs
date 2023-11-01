@@ -15,11 +15,16 @@ public class jwtController : Controller
             issuer: jwtModel.ISSUER,
             audience: jwtModel.AUDIENCE,
             expires: DateTime.Today.AddDays(1),
-            signingCredentials: new SigningCredentials(jwtModel.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+            signingCredentials: new 
+                        SigningCredentials(jwtModel.GetSymmetricSecurityKey(), 
+                SecurityAlgorithms.HmacSha256)
+            );
+        
         var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
         return encodedJwt;
     }
-
+    
+    
     [HttpPost("/token")]
     public IActionResult token([FromBody] TokenRequest request)
     {
@@ -29,12 +34,7 @@ public class jwtController : Controller
         }
 
         string token = GetToken();
-        Response.Cookies.Append("token", token//, new CookieOptions
-        //{
-          //  HttpOnly = false // Вот это обязательно ли должно быть? 
-            // Просто в ext js нужно как-то вытянуть куки, чтобы понять, рендерить ли модалку с авторизацией
-        //}
-        );
+        Response.Cookies.Append("token", token);
         
         var response = new
         {

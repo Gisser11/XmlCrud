@@ -3,24 +3,26 @@
   <Data>
     <ReportId>3752</ReportId>
     <Server>192.168.0.167:5432</Server>
-    <DataBase>dwh2_monit1</DataBase>
-    <UserName>fest</UserName>
+    <DataBase>dwh2_moni</DataBase>
+    <UserName>fe</UserName>
     <UserPassword>1</UserPassword>
     <DataSourceType>2</DataSourceType>
   </Data>
   <Data>
     <ReportId>2357</ReportId>
-    <FileQueryColName>окс_изображение_описание</FileQueryColName>
+    <FileQueryColName>окс_изобsdfsражение_описание</FileQueryColName>
     <FileQueryOutputColName>filePath</FileQueryOutputColName>
     <FileQueryTempPath>Temp\LoadFiles</FileQueryTempPath>
     <Server>kak dela</Server>
+    <DataSourceType>50</DataSourceType>
   </Data>
   <Data>
     <ReportId>2357</ReportId>
-    <FileQueryColName>окс_изображение_описание</FileQueryColName>
+    <FileQueryColName>окс_изобsdfsражение_описание</FileQueryColName>
     <FileQueryOutputColName>filePath</FileQueryOutputColName>
     <FileQueryTempPath>Temp\LoadFiles</FileQueryTempPath>
     <Server>kak dela</Server>
+    <DataSourceType>50</DataSourceType>
   </Data>
   <Data>
     <ReportId>250</ReportId>
@@ -46,18 +48,11 @@
     <ReportId>0</ReportId>
     <Server>ksdb3\dwh_de</Server>
     <DataBase>dwh2_test_marina_19</DataBase>
-    <UserName>fest</UserName>
+    <UserName>fest123</UserName>
     <UserPassword>zxcasd123</UserPassword>
     <DataSourceType>10</DataSourceType>
     <DefaultComplex>64</DefaultComplex>
-  </Data>
-  <Data>
-    <ReportId>4497</ReportId>
-    <FileQueryColName>image_описание</FileQueryColName>
-    <FileQueryOutputColName>filePath</FileQueryOutputColName>
-    <FileQueryTempPath>Temp\LoadFiles</FileQueryTempPath>
-    <Server>ksdb3\dwh12</Server>
-    <DataBase>dwh2_gmp_project21</DataBase>
+    <FileQueryColName>ывфа</FileQueryColName>
   </Data>
   <Data>
     <ReportId>453</ReportId>

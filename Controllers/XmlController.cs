@@ -66,9 +66,9 @@ public class XmlController : Controller
 
     }
 
-
+    
     [Route("DeleteNode/{ReportId:int}")]
-    public async Task<IActionResult> DeleteNode([FromRoute] int ReportId, RequestModel requestModel)
+    public IActionResult DeleteNode([FromRoute] int ReportId)
     {
         XmlDocument document = new XmlDocument();
         document.Load(string.Concat(this.Environment.ContentRootPath, Constants.PATH, Constants.XML));

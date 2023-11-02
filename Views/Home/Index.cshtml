@@ -14,6 +14,12 @@ mysupersecret_secretkey!1234
         Ext.application({
             name: 'MyApp',
             launch: function () {
+                var container = Ext.getBody(); // Получаем элемент-контейнер
+                        container.setStyle({
+                            width: '100%',
+                            height: '100%',
+                            overflow: 'hidden' // Чтобы убрать прокрутку, если контент слишком большой
+                        });
                 Ext.create('Ext.Button', {
                     text: 'Завершить работу (удалить куки)',
                     renderTo: Ext.getBody(),

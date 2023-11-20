@@ -7,7 +7,7 @@ public class jwtModel
 {
     public const string ISSUER = "MyAuthServer"; 
     public const string AUDIENCE = "MyAuthClient"; 
-    public const string KEY = "mysupersecret_secretkey!1234";  // Можно ли брать для сравнения ключ отсюда? Или это максимально не безопасно? 
+    public const string KEY = "mysupersecret_secretkey!1234"; 
     public const int LIFETIME = 1; 
     public static SymmetricSecurityKey GetSymmetricSecurityKey()
     {

@@ -4,21 +4,26 @@
 
 <style>
     .green-row .x-grid-cell {
-      background-color: green ;
+      background-color: rgba(107, 199, 97, 0.78) ;
       color: whitesmoke;
     }
 </style>
+<script>
+</script>
+<script>
+
+</script>
 <div class="text-center">
 mysupersecret_secretkey!1234
     <script>
         Ext.application({
             name: 'MyApp',
             launch: function () {
-                var container = Ext.getBody(); // Получаем элемент-контейнер
+                var container = Ext.getBody(); 
                         container.setStyle({
                             width: '100%',
                             height: '100%',
-                            overflow: 'hidden' // Чтобы убрать прокрутку, если контент слишком большой
+                            overflow: 'hidden'
                         });
                 Ext.create('Ext.Button', {
                     text: 'Завершить работу (удалить куки)',
@@ -33,37 +38,48 @@ mysupersecret_secretkey!1234
                     }
                 });
 
-                var token = Ext.util.Cookies.get('token'); 
-                    if (!token) {
-                        var passwordWindow = Ext.create('Ext.window.Window', {
-                            title: 'Введите пароль',
-                            items: [{
-                                xtype: 'textfield',
-                                fieldLabel: 'Пароль',
-                                id: 'passwordField',
-                            }, {
-                                xtype: 'button',
-                                text: 'OK', 
-                                handler: function () {
-                                    let password = {
-                                        jwtKey: Ext.getCmp('passwordField').getValue()
-                                    };
-                                    var json = JSON.stringify(password);
+                Ext.Ajax.request({
+                    url: '/isToken', 
+                    method: 'GET',
+                    success: function (response) {
+                        var hasToken = response.responseText === 'true'; 
                         
-                                    Ext.Ajax.request({
-                                        url: 'https://localhost:7004/token',
-                                        method: 'POST',
-                                        jsonData: json
-                                    }).then(() => {
-                                        window.location.reload();
-                                        passwordWindow.close();
-                                    });
-                                }
-                            }],
-                            padding: 20
-                        });
-                        passwordWindow.show();
+                        if (!hasToken) {
+                            var passwordWindow = Ext.create('Ext.window.Window', {
+                                title: 'Введите пароль',
+                                items: [{
+                                    xtype: 'textfield',
+                                    fieldLabel: 'Пароль',
+                                    id: 'passwordField',
+                                }, {
+                                    xtype: 'button',
+                                    text: 'OK',
+                                    handler: function () {
+                                        let password = {
+                                            jwtKey: Ext.getCmp('passwordField').getValue()
+                                        };
+                                        var json = JSON.stringify(password);
+                
+                                        Ext.Ajax.request({
+                                            url: '/token',
+                                            method: 'POST',
+                                            jsonData: json
+                                        }).then(() => {
+                                            window.location.reload();
+                                            passwordWindow.close();
+                                        });
+                                    }
+                                }],
+                                padding: 20
+                            });
+                            passwordWindow.show();
+                        }
+                    },
+                    failure: function (response) {
+                        console.error('Ошибка при проверке наличия токена:', response);
                     }
+                });
+                
                 Ext.define('Report', {
                     extend: 'Ext.data.Model',
                     fields: [
@@ -81,7 +97,7 @@ mysupersecret_secretkey!1234
                     model: 'Report',
                     proxy: {
                         type: 'rest',
-                        url: 'https://localhost:7004/xml/api/Reports', 
+                        url: '/xml/api/Reports', 
                         reader: {
                             type: 'json',
                             rootProperty: 'DataList'
@@ -124,11 +140,19 @@ mysupersecret_secretkey!1234
                                     var reportId = record.get('ReportId');
                                     
                                     Ext.Ajax.request({
-                                        url: 'https://localhost:7004/xml/DeleteNode/' + reportId,
+                                        url: '/xml/DeleteNode/' + reportId,
                                         method: 'DELETE',
-                                        success: function (response, opts) {
-                                            alert("Запись с ReportId " + reportId + " удалена");
-                                            store.remove(record);
+                                        success: function (response, opts) { 
+                                            if (reportId === 0) {
+                                                alert("Так нельзя делать")
+                                            }
+                                            if (response.StatusCode === 401) {
+                                                alert("Произведите заново вход")    
+                                            }
+                                            else {
+                                                alert("Запись с ReportId " + reportId + " удалена");
+                                                store.remove(record);
+                                            }
                                         },
                                         failure: function (response, opts) {
                                             alert("Произошла ошибка при удалении записи");
@@ -172,10 +196,19 @@ mysupersecret_secretkey!1234
                                    }
                                    
                                    Ext.Ajax.request({
-                                       url: 'https://localhost:7004/xml/api/EditNode',
+                                       url: '/xml/api/EditNode',
                                        method: 'PUT', 
-                                       jsonData: changes
-                                   });
+                                       jsonData: changes,
+                                       success: function (response) {
+                                                alert(changes)
+                                               alert("Успешно")
+                                           },
+                                           failure: function (response) {
+                                               alert("Приозошла ошибка, обновите страницу")
+                                               window.location.reload();
+                                           }
+                                   })
+                                   
                                    
                                }
                            }

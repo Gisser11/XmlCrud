@@ -3,64 +3,32 @@
   <Data>
     <ReportId>3752</ReportId>
     <Server>192.168.0.167:5432</Server>
-    <DataBase>dwh2_moni</DataBase>
-    <UserName>fe</UserName>
+    <DataBase>dwh2_monit1</DataBase>
+    <UserName>fest</UserName>
     <UserPassword>1</UserPassword>
     <DataSourceType>2</DataSourceType>
   </Data>
   <Data>
     <ReportId>2357</ReportId>
-    <FileQueryColName>окс_изобsdfsражение_описание</FileQueryColName>
-    <FileQueryOutputColName>filePath</FileQueryOutputColName>
+    <FileQueryColName>окс_изображение_описание</FileQueryColName>
+    <FileQueryOutputColName>filePathыфваыв</FileQueryOutputColName>
     <FileQueryTempPath>Temp\LoadFiles</FileQueryTempPath>
-    <Server>kak dela</Server>
-    <DataSourceType>50</DataSourceType>
-  </Data>
-  <Data>
-    <ReportId>2357</ReportId>
-    <FileQueryColName>окс_изобsdfsражение_описание</FileQueryColName>
-    <FileQueryOutputColName>filePath</FileQueryOutputColName>
-    <FileQueryTempPath>Temp\LoadFiles</FileQueryTempPath>
-    <Server>kak dela</Server>
-    <DataSourceType>50</DataSourceType>
-  </Data>
-  <Data>
-    <ReportId>250</ReportId>
-    <Server>ksdb3\dwh10r2</Server>
-    <DataBase>dwh2_eis_test</DataBase>
-    <UserName>fest</UserName>
-    <UserPassword>1</UserPassword>
-    <DataSourceType>0</DataSourceType>
-    <FileQueryColName>dfkmgd</FileQueryColName>
-  </Data>
-  <Data>
-    <ReportId>417</ReportId>
-    <Server>ksdb3\dwh14</Server>
-    <DataBase>dwh2_eis</DataBase>
-    <UserName>kondratieva</UserName>
-    <UserPassword>1</UserPassword>
-    <UsePivotData>false</UsePivotData>
-    <PivotCol>product_group</PivotCol>
-    <PivotRows>partner</PivotRows>
-    <PivotData>year2020,year2021,year2022</PivotData>
   </Data>
   <Data>
     <ReportId>0</ReportId>
     <Server>ksdb3\dwh_de</Server>
     <DataBase>dwh2_test_marina_19</DataBase>
-    <UserName>fest123</UserName>
-    <UserPassword>zxcasd123</UserPassword>
-    <DataSourceType>10</DataSourceType>
+    <UserName>fest</UserName>
+    <UserPassword>5</UserPassword>
+    <DataSourceType>0</DataSourceType>
     <DefaultComplex>64</DefaultComplex>
-    <FileQueryColName>ывфа</FileQueryColName>
   </Data>
   <Data>
-    <ReportId>453</ReportId>
-    <UsePivotData>true</UsePivotData>
-    <PivotCols>product_group,product_subgroup</PivotCols>
-    <PivotRows>region</PivotRows>
-    <PivotData>year2021</PivotData>
-    <Server>sdfkdf</Server>
-    <UserName>sadfdf</UserName>
+    <ReportId>4497</ReportId>
+    <FileQueryColName>image_описание</FileQueryColName>
+    <FileQueryOutputColName>filePath</FileQueryOutputColName>
+    <FileQueryTempPath>Temp\LoadFiles</FileQueryTempPath>
+    <Server>ksdb3\dwh12</Server>
+    <DataBase>dwh2_gmp_project21</DataBase>
   </Data>
 </Reports>

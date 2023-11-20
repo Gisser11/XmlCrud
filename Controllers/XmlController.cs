@@ -1,5 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
+using System.Security.Claims;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,120 +20,164 @@ public class XmlController : Controller
 {
     
     private IWebHostEnvironment Environment;
-    public string Document;
-    
+    public string doc;
+    public bool ValidateToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(jwtModel.KEY); 
+
+        try
+        {
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidIssuer = jwtModel.ISSUER,
+                ValidAudience = jwtModel.AUDIENCE,
+                ValidateLifetime = false  
+            }, out SecurityToken validatedToken);
+
+             
+            if (validatedToken is JwtSecurityToken jwtToken)
+            {
+                 
+                var expires = jwtToken.ValidTo;
+                 
+                if (expires < DateTime.UtcNow)
+                {
+                    return false;  
+                }
+            }
+
+            return true;  
+        }
+        catch
+        {
+            return false;  
+        }
+    }
+    public string GetXML()
+    {
+        var xmlFilePath = Environment.ContentRootPath + Constants.PATH + Constants.XML;
+        var xmlData = System.IO.File.ReadAllText(xmlFilePath);
+        return xmlData;
+    }
+
     public XmlController(IWebHostEnvironment environment)
     {
         Environment = environment;
-        Document = getXML();
+        doc = GetXML();
     }
-    
-    public string getXML()
-    {
-        string xmlFilePath = Environment.ContentRootPath + Constants.PATH + Constants.XML;
-        string xmlData = System.IO.File.ReadAllText(xmlFilePath);
-        return xmlData;
-    }
-    public string GetToken()
-    {
-        var jwt = new JwtSecurityToken(
-            issuer: jwtModel.ISSUER,
-            audience: jwtModel.AUDIENCE,
-            expires: DateTime.Today.AddDays(1),
-            signingCredentials: new SigningCredentials(jwtModel.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-        var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-        return encodedJwt;
-    }
-    
+
     [HttpGet("api/Reports")]
     public IActionResult Reports()
     {
         string myCookie = Request.Cookies["token"];
-        string ServerSideToken = GetToken();
-        var check = jwtModel.GetSymmetricSecurityKey();
-        if (myCookie != null && myCookie == ServerSideToken)
-        {
+        
+        if (ValidateToken(myCookie)) {
             XmlSerializer serializer = new XmlSerializer(typeof(Reports));
         
         
-            using (StringReader reader = new StringReader(Document))
+            using (StringReader reader = new StringReader(doc))
             {   
                 Reports reports = (Reports)serializer.Deserialize(reader);
                 string jsonData = JsonConvert.SerializeObject(reports, Formatting.Indented);
                 return Ok(jsonData);
             }
         }
-
-        return BadRequest();
-
+        if (!ValidateToken(myCookie))
+        {
+            Response.Cookies.Delete("token");
+        }
+        return StatusCode(404,"Обновите страницу");
     }
-
+    
     
     [Route("DeleteNode/{ReportId:int}")]
     public IActionResult DeleteNode([FromRoute] int ReportId)
     {
-        XmlDocument document = new XmlDocument();
-        document.Load(string.Concat(this.Environment.ContentRootPath, Constants.PATH, Constants.XML));
-        
-        foreach (XmlNode node in document.SelectNodes(Constants.PARENT_NODE))
+        string myCookie = Request.Cookies["token"];
+
+        if (ReportId == 0)
         {
-            if (ReportId == int.Parse(node["ReportId"].InnerText))
-            {
-                XmlNode parent = node.ParentNode;
-                parent.RemoveChild(node);
-                document.Save(string.Concat(this.Environment.ContentRootPath, "/Services", "/RQList.xml"));
-                return Ok();
-                
-            }
+            return StatusCode(404);
         }
-        return NoContent();
+        
+        if (ValidateToken(myCookie))
+        {
+            XmlDocument document = new XmlDocument();
+            document.Load(string.Concat(this.Environment.ContentRootPath, Constants.PATH, Constants.XML));
+        
+            foreach (XmlNode node in document.SelectNodes(Constants.PARENT_NODE))
+            {
+                if (ReportId == int.Parse(node["ReportId"].InnerText))
+                {
+                    XmlNode parent = node.ParentNode;
+                    parent.RemoveChild(node);
+                    document.Save(string.Concat(this.Environment.ContentRootPath, "/Services", "/RQList.xml"));
+                    return Ok();
+                
+                }
+            }
+            return NoContent();
+        }
+        return StatusCode(404, "Произошла ошибка, обратитесь куда-нибудь");
     }
     
     [Route("api/EditNode")]
     [HttpPut]
     public IActionResult EditNode([FromBody] RequestModel updatedModel)
     {
-        if (ModelState.IsValid)
+        string myCookie = Request.Cookies["token"];
+
+        if (updatedModel.ReportId == 0)
         {
-            XmlDocument document = new XmlDocument();
-            document.Load(string.Concat(this.Environment.ContentRootPath, Constants.PATH, Constants.XML));
-            foreach (XmlNode node in document.SelectNodes(Constants.PARENT_NODE))
+            return StatusCode(404);
+        }
+
+        if (ValidateToken(myCookie))
+        {
+            if (ModelState.IsValid)
             {
-                if (updatedModel.ReportId == int.Parse(node["ReportId"].InnerText))
+                XmlDocument document = new XmlDocument();
+                document.Load(string.Concat(this.Environment.ContentRootPath, Constants.PATH, Constants.XML));
+                foreach (XmlNode node in document.SelectNodes(Constants.PARENT_NODE))
                 {
-                    foreach (PropertyInfo prop in typeof(RequestModel).GetProperties())
+                    if (updatedModel.ReportId == int.Parse(node["ReportId"].InnerText))
                     {
-                        string propName = prop.Name;
-                        object propValue = prop.GetValue(updatedModel);
-                        
-                        if (propValue != null)
+                        foreach (PropertyInfo prop in typeof(RequestModel).GetProperties())
                         {
-                            string nodeValue = Convert.ToString(propValue);
-
-                            // Проверяем, что узел с таким именем существует
-                            XmlNode targetNode = node[propName];
-                            if (targetNode == null)
-                            {
-                                // Если узла нет, создаем его и добавляем значение
-                                targetNode = document.CreateElement(propName);
-                                node.AppendChild(targetNode);
-                            }
-
-                            // Устанавливаем значение узла
-                            targetNode.InnerText = nodeValue;
-                        }
+                            string propName = prop.Name;
+                            object propValue = prop.GetValue(updatedModel);
                         
-                        document.Save(string.Concat(this.Environment.ContentRootPath, "/Services", "/RQList.xml"));
+                            if (propValue != null)
+                            {
+                                string nodeValue = Convert.ToString(propValue);
 
+                                XmlNode targetNode = node[propName];
+                                if (targetNode == null)
+                                {
+                                    targetNode = document.CreateElement(propName);
+                                    node.AppendChild(targetNode);
+                                }
+
+                                targetNode.InnerText = nodeValue;
+                            }
+                        
+                            document.Save(string.Concat(this.Environment.ContentRootPath, "/Services", "/RQList.xml"));
+                        }
                     }
-                   }
+                }
+                return Ok(updatedModel);
             }
-            return Ok(updatedModel);
         }
         else
         {
-            return BadRequest(ModelState);
+            Response.Cookies.Delete("token");
         }
+        return Unauthorized();
     }
 
 }
